@@ -22,4 +22,4 @@ http://localhost:8080/pages
 
 # Disclaimer
 
-This was written quickly and should NOT be used in production.
+This was written quickly and should NOT be used in production. There is probably a lot of things wrong in here.
