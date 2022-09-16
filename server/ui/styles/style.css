@@ -57,3 +57,9 @@ h1 {
 code {
     color: #6466f1;
 }
+
+.page {
+    display: flex;
+    margin-left: 10%;
+    margin-right: 10%
+}
