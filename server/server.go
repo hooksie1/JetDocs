@@ -6,15 +6,18 @@ Copyright © 2022 John Hooks
 package server
 
 import (
+	"embed"
+	_ "embed"
 	"fmt"
-	natsserver "github.com/nats-io/nats-server/v2/server"
-	"github.com/spf13/viper"
 	"html/template"
 	"log"
 	"net/http"
 	"time"
 
+	natsserver "github.com/nats-io/nats-server/v2/server"
+
 	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
 	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
 )
@@ -32,6 +35,9 @@ var docsTemplate = `
   {{ end }}
 </ul>
 `
+
+//go:embed ui/*
+var ui embed.FS
 
 type Server struct {
 	Conn   *nats.Conn
@@ -105,8 +111,16 @@ func (s *Server) GetPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", 500)
 		return
 	}
+	head := `
+	<a href="/pages">
+	<h1 class="frontPageHeading">Jet
+  		<span class="synadiaHeading">Docs</span>
+	</h1>
+	</a>
+	`
+	renderer := html.NewRenderer(html.RendererOptions{CSS: "../static/ui/styles/style.css", Flags: html.CompletePage, Head: []byte(head)})
 
-	w.Write(markdown.ToHTML(data, nil, nil))
+	w.Write(markdown.ToHTML(data, nil, renderer))
 }
 
 func (s *Server) GetPages(w http.ResponseWriter, r *http.Request) {
@@ -117,6 +131,7 @@ func (s *Server) GetPages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "internal server error", 500)
 		return
 	}
@@ -130,7 +145,14 @@ func (s *Server) GetPages(w http.ResponseWriter, r *http.Request) {
 		urls = append(urls, link)
 	}
 
-	tmpl := template.Must(template.New("").Parse(docsTemplate))
+	t, err := ui.ReadFile("ui/templates/list.templ.html")
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "internal server error", 500)
+		return
+	}
+
+	tmpl := template.Must(template.New("").Parse(string(t)))
 
 	if err := tmpl.Execute(w, urls); err != nil {
 		log.Println(err)
@@ -138,10 +160,29 @@ func (s *Server) GetPages(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func StartEmbeddedNATS(nc *nats.Conn) (*nats.Conn, error) {
+func (s *Server) SetPort(p int) *Server {
+	s.Port = p
+	return s
+}
+
+func (s *Server) Serve() error {
+	r := mux.NewRouter()
+
+	fileServer := http.FileServer(http.FS(ui))
+
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static", fileServer))
+	r.HandleFunc("/pages/{id}", s.GetPage).Methods("GET")
+	r.HandleFunc("/pages", s.GetPages).Methods("GET")
+
+	port := fmt.Sprintf(":%d", s.Port)
+
+	return http.ListenAndServe(port, r)
+}
+
+func StartEmbeddedNATS(nc *nats.Conn, store string) (*nats.Conn, error) {
 	sopts := natsserver.Options{
 		JetStream: true,
-		StoreDir:  viper.GetString("store-dir"),
+		StoreDir:  store,
 		Host:      "127.0.0.1",
 		Port:      44566,
 	}

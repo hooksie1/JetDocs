@@ -3,6 +3,7 @@ module github.com/hooksie1/jetdocs
 go 1.18
 
 require (
+	github.com/hooksie1/logging v0.0.0-20220727140828-2f7ffed6168f
 	github.com/nats-io/nats-server/v2 v2.8.4
 	github.com/nats-io/nats.go v1.16.0
 )

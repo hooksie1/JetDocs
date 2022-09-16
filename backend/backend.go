@@ -1,6 +1,10 @@
 package backend
 
-import "github.com/nats-io/nats.go"
+import (
+	"fmt"
+
+	"github.com/nats-io/nats.go"
+)
 
 const (
 	natsBucket = "pages"
@@ -28,6 +32,8 @@ func (n Nats) Write(name string, data []byte) (int, error) {
 	if _, err := kv.Put(name, data); err != nil {
 		return 0, err
 	}
+
+	fmt.Printf("document %s stored", name)
 
 	return len(data), nil
 }
