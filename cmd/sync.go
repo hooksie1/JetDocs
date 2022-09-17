@@ -1,11 +1,11 @@
 /*
 Copyright © 2022 John Hooks
-
 */
 package cmd
 
 import (
 	"fmt"
+
 	"github.com/hooksie1/jetdocs/backend"
 	"github.com/hooksie1/jetdocs/sync"
 	"github.com/nats-io/nats.go"
@@ -29,7 +29,11 @@ func init() {
 }
 
 func syncData(cmd *cobra.Command, args []string) error {
-	opts := getOptions()
+	opts, err := getOptions()
+	if err != nil {
+		return err
+	}
+
 	urls := viper.GetString("nats-urls")
 	if urls == "" {
 		urls = "nats://127.0.0.1:44566"

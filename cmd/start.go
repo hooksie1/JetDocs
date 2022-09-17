@@ -1,6 +1,5 @@
 /*
 Copyright © 2022 John Hooks
-
 */
 package cmd
 
@@ -28,9 +27,12 @@ func init() {
 }
 
 func start(cmd *cobra.Command, args []string) error {
-	opts := getOptions()
+	opts, err := getOptions()
+	if err != nil {
+		return err
+	}
+
 	var nc *nats.Conn
-	var err error
 
 	if viper.GetString("nats-urls") == "" {
 		nc, err = server.StartEmbeddedNATS(nc, viper.GetString("store-dir"))

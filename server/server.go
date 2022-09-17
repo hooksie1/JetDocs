@@ -102,13 +102,13 @@ func (s *Server) GetPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	head := `
-	<a href="/pages">
+	<a href="/">
 	<h1 class="frontPageHeading">Jet
   		<span class="synadiaHeading">Docs</span>
 	</h1>
 	</a>
 	`
-	renderer := html.NewRenderer(html.RendererOptions{CSS: "../static/ui/styles/style.css", Flags: html.CompletePage, Head: []byte(head)})
+	renderer := html.NewRenderer(html.RendererOptions{CSS: "static/ui/styles/style.css", Flags: html.CompletePage, Head: []byte(head)})
 
 	w.Write(markdown.ToHTML(data, nil, renderer))
 }
@@ -129,7 +129,7 @@ func (s *Server) GetPages(w http.ResponseWriter, r *http.Request) {
 	var urls []Link
 	for _, v := range pages {
 		link := Link{
-			URL:  fmt.Sprintf("http://127.0.0.1:%d/pages/%s", s.Port, v),
+			URL:  fmt.Sprintf("http://127.0.0.1:%d/%s", s.Port, v),
 			Name: v,
 		}
 		urls = append(urls, link)
@@ -161,8 +161,8 @@ func (s *Server) Serve() error {
 	fileServer := http.FileServer(http.FS(ui))
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static", fileServer))
-	r.HandleFunc("/pages/{id}", s.GetPage).Methods("GET")
-	r.HandleFunc("/pages", s.GetPages).Methods("GET")
+	r.HandleFunc("/{id}", s.GetPage).Methods("GET")
+	r.HandleFunc("/", s.GetPages).Methods("GET")
 
 	port := fmt.Sprintf(":%d", s.Port)
 
