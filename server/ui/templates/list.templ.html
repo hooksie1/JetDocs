@@ -4,18 +4,22 @@
   <link rel="stylesheet" href="static/ui/styles/style.css">
 </head>
 <body>
-  <h1 class="frontPageHeading">Jet
-    <span class="synadiaHeading">Docs</span>
-  </h1>
-  <h3 class="frontPageHeading">Documents</h3>
-  <div class="page">
-    <class name="doc-list">
-      <ul>
-        {{ range .  }}
-        <li><a href={{ .URL }}>{{ .Name }}</a></li>
-        {{ end }}
-      </ul>
-    </class>
+  <div class="content">
+    <div class="frontPageHeading">
+      <h1>Jet
+        <span class="synadiaHeading">Docs</span>
+      </h1>
+      <h3>Documents</h3>
+    </div>
+    <div class="page">
+      <class name="doc-list">
+        <ul>
+          {{ range .  }}
+          <li><a href={{ .URL }}>{{ .Name }}</a></li>
+          {{ end }}
+        </ul>
+      </class>
+    </div>
   </div>
 </body>
 </html>

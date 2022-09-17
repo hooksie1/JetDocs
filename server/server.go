@@ -26,16 +26,6 @@ const (
 	bucket = "pages"
 )
 
-var docsTemplate = `
-<h1>JetDocs</h1>
-<h3>Documents</h3>
-<ul>
-  {{ range .  }}
-	<li><a href={{ .URL }}>{{ .Name }}</a></li>
-  {{ end }}
-</ul>
-`
-
 //go:embed ui/*
 var ui embed.FS
 
