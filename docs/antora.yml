@@ -1,0 +1,5 @@
+name: jetdocs
+title: JetDocs
+version: main
+nav:
+  - modules/ROOT/nav.adoc
